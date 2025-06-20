@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:smapp/components/my_button.dart';
 import 'package:smapp/components/my_textfield.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key, required this.onTap});
-  //text controllers
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class RegisterPage extends StatelessWidget {
   final void Function()? onTap;
 
-  //Login function
+  RegisterPage({super.key, required this.onTap});
 
-  void login() {}
+  //text controllers
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmpwController = TextEditingController();
+
+  //Register function
+
+  void register() {}
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +39,13 @@ class LoginPage extends StatelessWidget {
               // appname
               Text("SMAPP", style: TextStyle(fontSize: 20)),
               const SizedBox(height: 25),
-
+              //usesrname textfield
+              MyTextfield(
+                hinttext: "Username",
+                obscureText: false,
+                controller: usernameController,
+              ),
+              const SizedBox(height: 10),
               //email textfield
               MyTextfield(
                 hinttext: "Email",
@@ -51,26 +61,31 @@ class LoginPage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              //forgot password
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [Text("Forgot Password?")],
+              //pw confirm textfield
+              MyTextfield(
+                hinttext: "Cronfirm password",
+                obscureText: true,
+                controller: confirmpwController,
               ),
               const SizedBox(height: 10),
+
               //signin button
-              MyButton(text: "Login", onTap: login),
+              MyButton(text: "Register", onTap: register),
               const SizedBox(height: 10),
 
-              //dont have an accoutn ?
+              //Already have an account ?
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Dont have an account ?"),
+                  GestureDetector(
+                    onTap: onTap,
+                    child: const Text("Already have an account ?"),
+                  ),
                   SizedBox(width: 10),
                   GestureDetector(
                     onTap: onTap,
                     child: const Text(
-                      "Register",
+                      "Login here",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

@@ -13,6 +13,20 @@ class MyTextfield extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField();
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      textAlign: TextAlign.center,
+
+      decoration: InputDecoration(
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(25)),
+        hintText: hinttext,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: const Color.fromARGB(255, 0, 0, 0)),
+        ),
+      ),
+      //obscureText: true,
+    );
   }
 }
