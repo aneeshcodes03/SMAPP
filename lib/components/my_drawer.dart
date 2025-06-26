@@ -20,7 +20,15 @@ class MyDrawer extends StatelessWidget {
           Column(
             children: [
               // drawer header
-              DrawerHeader(child: Icon(Icons.arrow_back)),
+              DrawerHeader(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context); // Closes the drawer
+                  },
+                  child: Icon(Icons.arrow_back),
+                ),
+              ),
+
               const SizedBox(height: 25),
               // home tile
               ListTile(
