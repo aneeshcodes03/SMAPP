@@ -16,6 +16,7 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   final FirestoreDatabase database = FirestoreDatabase();
+  final currentUserEmail = FirebaseAuth.instance.currentUser?.email;
   void logout() {
     FirebaseAuth.instance.signOut();
   }
@@ -60,6 +61,7 @@ class _HomepageState extends State<Homepage> {
                   itemBuilder: (context, index) {
                     // get indivudual post
                     final post = posts[index];
+                    final postId = post.id;
                     // get data frome each posts
                     String message = post['PostMessage'];
                     String email = post['UserEmail'];
@@ -77,6 +79,56 @@ class _HomepageState extends State<Homepage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if (currentUserEmail == email)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      final shouldDelete = await showDialog<
+                                        bool
+                                      >(
+                                        context: context,
+                                        builder:
+                                            (context) => AlertDialog(
+                                              title: const Text('Delete Post'),
+                                              content: const Text(
+                                                'Are you sure you want to delete this post?',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.of(
+                                                        context,
+                                                      ).pop(false), // Cancel
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.of(
+                                                        context,
+                                                      ).pop(true), // Confirm
+                                                  child: const Text(
+                                                    'Delete',
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                      );
+
+                                      if (shouldDelete == true) {
+                                        database.deletePost(post.id);
+                                      }
+                                    },
+
+                                    icon: Icon(Icons.delete, color: Colors.red),
+                                  ),
+                                ],
+                              ),
+
                             Text(
                               message,
                               style: TextStyle(

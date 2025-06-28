@@ -32,5 +32,8 @@ class FirestoreDatabase {
     return postsStream;
   }
 
-  // display post to app from databse
+  // delete post
+  Future<void> deletePost(String postId) async {
+    await posts.doc(postId).delete();
+  }
 }
