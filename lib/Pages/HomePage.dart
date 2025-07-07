@@ -1,14 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:smapp/components/my_drawer.dart';
-import 'package:smapp/components/my_textfield.dart';
 import 'package:smapp/components/post_field.dart';
 import 'package:smapp/database/firestore.dart';
 
 class Homepage extends StatefulWidget {
-  Homepage({super.key});
+  const Homepage({super.key});
 
   @override
   State<Homepage> createState() => _HomepageState();
@@ -17,11 +15,10 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   final FirestoreDatabase database = FirestoreDatabase();
   final currentUserEmail = FirebaseAuth.instance.currentUser?.email;
+
   void logout() {
     FirebaseAuth.instance.signOut();
   }
-
-  final TextEditingController postcontroller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -34,114 +31,134 @@ class _HomepageState extends State<Homepage> {
           IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
         ],
       ),
-      drawer: MyDrawer(),
+      drawer: const MyDrawer(),
       body: Column(
         children: [
-          // textfield for user
-          Expanded(child: PostField()),
-
-          // display posts from database to the app
+          const Expanded(child: PostField()),
           StreamBuilder(
             stream: database.getPostsStream(),
             builder: (context, snapshot) {
-              // loading circle
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               }
-              // get posts
-              final posts = snapshot.data!.docs;
-              // no data ?
-              if (snapshot.data == null || posts.isEmpty) {
-                return Center(child: Text("Nothing to show"));
+
+              final posts = snapshot.data?.docs ?? [];
+
+              if (posts.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: Text("Nothing to show"),
+                  ),
+                );
               }
-              // return as a list
+
               return Expanded(
                 child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 10,
+                  ),
                   itemCount: posts.length,
                   itemBuilder: (context, index) {
-                    // get indivudual post
                     final post = posts[index];
                     final postId = post.id;
-                    // get data frome each posts
+
                     String message = post['PostMessage'];
                     String email = post['UserEmail'];
-                    Timestamp timestamp = post['TimeStamp'];
-                    // return as a listtile
 
                     return Card(
-                      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 4,
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                      elevation: 6,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      color: Theme.of(context).cardColor,
+                      shadowColor: Theme.of(
+                        context,
+                      ).shadowColor.withOpacity(0.3),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Theme.of(context).colorScheme.surfaceVariant,
+                              Theme.of(context).colorScheme.surface,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (currentUserEmail == email)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  IconButton(
-                                    onPressed: () async {
-                                      final shouldDelete = await showDialog<
-                                        bool
-                                      >(
-                                        context: context,
-                                        builder:
-                                            (context) => AlertDialog(
-                                              title: const Text('Delete Post'),
-                                              content: const Text(
-                                                'Are you sure you want to delete this post?',
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.delete_outline_rounded,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () async {
+                                    final shouldDelete = await showDialog<bool>(
+                                      context: context,
+                                      builder:
+                                          (context) => AlertDialog(
+                                            title: const Text('Delete Post'),
+                                            content: const Text(
+                                              'Are you sure you want to delete this post?',
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed:
+                                                    () => Navigator.of(
+                                                      context,
+                                                    ).pop(false),
+                                                child: const Text('Cancel'),
                                               ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed:
-                                                      () => Navigator.of(
-                                                        context,
-                                                      ).pop(false), // Cancel
-                                                  child: const Text('Cancel'),
-                                                ),
-                                                TextButton(
-                                                  onPressed:
-                                                      () => Navigator.of(
-                                                        context,
-                                                      ).pop(true), // Confirm
-                                                  child: const Text(
-                                                    'Delete',
-                                                    style: TextStyle(
-                                                      color: Colors.red,
-                                                    ),
+                                              TextButton(
+                                                onPressed:
+                                                    () => Navigator.of(
+                                                      context,
+                                                    ).pop(true),
+                                                child: const Text(
+                                                  'Delete',
+                                                  style: TextStyle(
+                                                    color: Colors.red,
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-                                      );
-
-                                      if (shouldDelete == true) {
-                                        database.deletePost(post.id);
-                                      }
-                                    },
-
-                                    icon: Icon(Icons.delete, color: Colors.red),
-                                  ),
-                                ],
+                                              ),
+                                            ],
+                                          ),
+                                    );
+                                    if (shouldDelete == true) {
+                                      database.deletePost(postId);
+                                    }
+                                  },
+                                ),
                               ),
-
                             Text(
                               message,
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 12),
                             Text(
                               email,
                               style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
+                                fontSize: 13,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.primary.withValues(),
                               ),
                             ),
                           ],
