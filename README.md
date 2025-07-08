@@ -1,16 +1,30 @@
-# smapp
+# 📲 SMAPP - A Simple Flutter Social Media App
 
-A new Flutter project.
+SMAPP is a Flutter-based social media platform where users can sign up, log in, write posts, and view content shared by others in real-time. It uses Firebase for authentication and Firestore for storing user data and posts.
 
-## Getting Started
+## 🚀 Features
 
-This project is a starting point for a Flutter application.
+- 🔐 User authentication (login/register) with Firebase
+- 📝 Create and share posts
+- 👀 View posts from all users
+- 👤 Profile page with user info
+- 👥 Users list with usernames and emails
+- 🔄 Real-time Firestore sync
+- 🎨 Custom UI with themes and reusable components
+- 🚀 Custom app icon via `flutter_launcher_icons`
 
-A few resources to get you started if this is your first Flutter project:
+## 🛠 Tech Stack
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Flutter
+- Firebase Auth
+- Firebase Cloud Firestore
+- Dart
+- Packages:
+  - `firebase_core`
+  - `firebase_auth`
+  - `cloud_firestore`
+  - `google_fonts`
+  - `flutter_launcher_icons`
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+
