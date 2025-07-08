@@ -10,20 +10,37 @@ class UsersPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
-        child: StreamBuilder(
+        child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection("Users").snapshots(),
           builder: (context, snapshot) {
-            // any error
+            // 🔴 Handle Firestore-related errors
             if (snapshot.hasError) {
-              return const Center(child: Text("Something went wrong"));
+              final error = snapshot.error;
+              String errorMessage = "Something went wrong.";
+
+              if (error is FirebaseException && error.code == 'unavailable') {
+                errorMessage =
+                    "Firestore service is currently unavailable.\nPlease check your internet connection or try again later.";
+              }
+
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    errorMessage,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.red, fontSize: 16),
+                  ),
+                ),
+              );
             }
 
-            // loading
+            // 🟡 Show loading spinner while connecting
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            // no data
+            // ⚪ Show message when no users exist
             if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
               return const Center(child: Text("No users found."));
             }

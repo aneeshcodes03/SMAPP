@@ -6,11 +6,18 @@ import 'package:smapp/components/my_back_button.dart';
 class ProfilePage extends StatelessWidget {
   ProfilePage({super.key});
 
-  // current logged-in user
+  // Current logged-in user
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
-  // Future to fetch user data
+  // Fetch user details from Firestore
   Future<DocumentSnapshot<Map<String, dynamic>>> getUserDetails() async {
+    if (currentUser == null) {
+      throw FirebaseAuthException(
+        code: 'no-user',
+        message: 'No user is currently logged in.',
+      );
+    }
+
     return await FirebaseFirestore.instance
         .collection("Users")
         .doc(currentUser!.email)
@@ -22,28 +29,48 @@ class ProfilePage extends StatelessWidget {
     return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       future: getUserDetails(),
       builder: (context, snapshot) {
-        //  Loading state
+        // 🔄 Loading
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // Error state
+        // ❌ Error handling
         if (snapshot.hasError) {
+          String errorMessage = "Something went wrong.";
+
+          final error = snapshot.error;
+          if (error is FirebaseException && error.code == 'unavailable') {
+            errorMessage =
+                "Firestore is currently unavailable.\nPlease check your internet or try again later.";
+          } else if (error is FirebaseAuthException &&
+              error.code == 'no-user') {
+            errorMessage = "No user is currently logged in.";
+          }
+
           return Scaffold(
-            body: Center(child: Text("Error: ${snapshot.error}")),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  errorMessage,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.red, fontSize: 16),
+                ),
+              ),
+            ),
           );
         }
 
-        //  No data
+        // ⚪ No user data found
         if (!snapshot.hasData || snapshot.data!.data() == null) {
           return const Scaffold(
             body: Center(child: Text("No user data found")),
           );
         }
 
-        // ✅ Success - user data retrieved
+        // ✅ Success
         final userData = snapshot.data!.data()!;
         final username = userData['username'];
 
@@ -53,11 +80,12 @@ class ProfilePage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [MyBackButton()],
                 ),
                 Text("Hey $username 👋"),
+                const SizedBox(height: 20),
                 Card(
                   elevation: 6,
                   shape: RoundedRectangleBorder(
@@ -66,26 +94,25 @@ class ProfilePage extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.person, color: Colors.blue),
-                            SizedBox(width: 10),
-                            Text(
+                            const Icon(Icons.person, color: Colors.blue),
+                            const SizedBox(width: 10),
+                            const Text(
                               "Username: ",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Text(username),
                           ],
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Row(
                           children: [
-                            Icon(Icons.email, color: Colors.green),
-                            SizedBox(width: 10),
-                            Text(
+                            const Icon(Icons.email, color: Colors.green),
+                            const SizedBox(width: 10),
+                            const Text(
                               "Email: ",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
@@ -96,6 +123,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
                 Card(
                   elevation: 6,
                   shape: RoundedRectangleBorder(
@@ -104,25 +132,20 @@ class ProfilePage extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            TextButton(
-                              onPressed: () {},
-                              child: Text("Edit your username"),
-                            ),
-                          ],
+                        TextButton(
+                          onPressed: () {
+                            // TODO: Implement edit username
+                          },
+                          child: const Text("Edit your username"),
                         ),
-                        SizedBox(height: 16),
-                        Row(
-                          children: [
-                            TextButton(
-                              onPressed: () {},
-                              child: Text("Edit your password"),
-                            ),
-                          ],
+                        const SizedBox(height: 16),
+                        TextButton(
+                          onPressed: () {
+                            // TODO: Implement edit password
+                          },
+                          child: const Text("Edit your password"),
                         ),
                       ],
                     ),
